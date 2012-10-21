@@ -59,6 +59,7 @@ void set_exit(int sig) {
 
 int main(int argc, char **argv) {
 	int sock;
+	int one = 1;
 	int rv;
 	struct addrinfo *addr;
 	struct addrinfo *it = NULL;
@@ -72,6 +73,7 @@ int main(int argc, char **argv) {
 		sock = socket(it->ai_family, it->ai_socktype, it->ai_protocol);
 		if (sock == -1) continue;
 
+		setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
 		if (bind(sock, it->ai_addr, it->ai_addrlen) == 0) break;
 
 		close(sock);
@@ -81,7 +83,7 @@ int main(int argc, char **argv) {
 		fprintf(stderr, "could not bind");
 		return -1;
 	}
-	listen(sock, 5);
+	listen(sock, 50);
 	close_sock = sock;
 	while (1) {
 		struct addrinfo client_addr;
