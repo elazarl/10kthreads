@@ -40,7 +40,7 @@ Another option is to spawn a thread for each concurrent connection. Keep everyth
         client, addr = server.accept()
         thread.start_new_thread(handler, client)
 
-The common wisdom about select vs threads is, that the `epoll` based techniques is faster than spawning a thread for each `request`. People far wiser than me has [dispelled this myth](http://www.mailinator.com/tymaPaulMultithreaded.pdf).
+The common wisdom about select vs threads is, that the `epoll` based techniques is faster than spawning a thread for each `request`. People far wiser than me has [dispelled this myth](http://www.mailinator.com/tymaPaulMultithreaded.pdf).
 
 But an online PDF is not as convincing as running code
 
