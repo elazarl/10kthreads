@@ -1,5 +1,5 @@
 CFLAGS=-Wall #-Wextra
-10kthreads: 10kthreads.c rusage.o
+bin/10kthreads: 10kthreads.c obj/rusage.o
 	gcc $(CFLAGS) -pthread  $^ -o $@
-rusage.o: rusage.c
+obj/rusage.o: rusage.c
 	gcc -c $(CFLAGS)  $^ -o $@
