@@ -79,6 +79,8 @@ Note that in order to actually have 10K concurrent connections, you must set the
 
 To change ulimit for a specific user see `/etc/security/limits.conf` or `/etc/launchd.conf` in Mac OS X.
 
+*Max conc*, is the maximum concurrent sockets alive as recorded by the server or client, *total* is the total number of connections opened.
+
 ### Bugs and TODO
 
 On high contention client sometimes stalls, a single thread is waiting at `epoll`, and the rest are holding a futex, probablly waiting on the `WaitGroup` to die.
