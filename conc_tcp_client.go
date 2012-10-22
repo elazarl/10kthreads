@@ -54,9 +54,9 @@ func main() {
 			defer step3.Done()
 			defer atomic.AddInt32(&conc, -1)
 			defer conn.Close()
-			fmt.Fprint(conn, *data)
 			step1.Done()
 			step2.Wait()
+			fmt.Fprint(conn, *data)
 			out, err := ioutil.ReadAll(conn)
 			panicOnErr("copy", err)
 			if bytes.Compare(out, []byte(*data))!=0 {
