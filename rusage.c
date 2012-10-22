@@ -9,13 +9,7 @@ void print_rusage(void) {
 
 	if (getrusage(RUSAGE_SELF,&u)==0) {
 		puts("resident ");
-		printf("%lu", u.ru_maxrss);
-		puts("\nshared ");
-		printf("%lu", u.ru_ixrss);
-		puts("\nunshared data ");
-		printf("%lu", u.ru_idrss);
-		puts("\nstack ");
-		printf("%lu\n", u.ru_isrss);
+		printf("%lu\n", u.ru_maxrss);
 	} else {
 		perror("getrusage");
 	}
