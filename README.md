@@ -1,15 +1,20 @@
 # Is thread per connection scalable?
 
-## Origin
+## Summary
 
-A very experience colleague has told me once, that one can't use a thread
-per-connection model for handling connections.
+A simple echo server using thread per connection, that scales to 10K concurrent connections. A client and a 
+reference asynchronous (libevent-like) implementation are provided.
 
-- "You must use some sort of `epoll` or `select`, it wouldn't work otherwise!
-- "Why? What would happen if I use a thread per connection?"
-- "It wouldn't work, why won't you just try it and let me know?"
-
-So I tried it.
+    $ make
+    gcc -c -Wall  10kthreads.c -o obj/10kthreads.o
+    gcc -c -Wall   rusage.c -o obj/rusage.o
+    gcc -Wall  -pthread  obj/10kthreads.o obj/rusage.o -o bin/10kthreads
+    (cd $(dirname ref_async_server/10kthreads.go);go build -o ../bin/ref_async_server)
+    (cd $(dirname client/conc_tcp_client.go);go build -o ../bin/client)
+    Success
+    $ ./bin/10kthreads # start echo server on localhost:1234
+    $ ./bin/client -n 100 # client to localhost:1234 with 100 concurrent connections
+    $ ./bin/ref_async_server # start asynchronous echo server
 
 ## Background
 
@@ -86,3 +91,14 @@ To change ulimit for a specific user see `/etc/security/limits.conf` or `/etc/la
 On high contention client sometimes stalls, a single thread is waiting at `epoll`, and the rest are holding a futex, probablly waiting on the `WaitGroup` to die.
 
 The size of the stack for each thread should be determinable by command line arguments.
+
+## Origin
+
+A very experience colleague has told me once, that one can't use a thread
+per-connection model for handling connections.
+
+- "You must use some sort of `epoll` or `select`, it wouldn't work otherwise!
+- "Why? What would happen if I use a thread per connection?"
+- "It wouldn't work, why won't you just try it and let me know?"
+
+So I tried it.
