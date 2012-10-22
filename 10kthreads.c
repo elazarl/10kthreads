@@ -26,7 +26,12 @@ atomic_int total = ATOMIC_INT(0);
 void *agent(void *_sock) {
 	int sock = (intptr_t)_sock;
 	byte buf[100];
-	int len = read(sock, buf, sizeof(buf));
+	int conc;
+	int len;
+	conc = atomic_int_add(&currConc, 1);
+	atomic_int_add(&total, 1);
+	while (conc>atomic_int_get(&maxConc) && !atomic_int_compare_and_swap(&maxConc, atomic_int_get(&maxConc), conc));
+	len = read(sock, buf, sizeof(buf));
 	if (len < 0) {
 		perror("read");
 		return NULL;
@@ -85,13 +90,9 @@ int main(int argc, char **argv) {
 		struct addrinfo client_addr;
 		socklen_t addr_len = sizeof(client_addr);
 		pthread_t t;
-		int conc;
 		int client_sock = accept(sock, (struct sockaddr *) &client_addr, &addr_len);
 		if (atomic_int_get(&is_exit)!=0) break;
 		if (client_sock==-1) panic("accept");
-		conc = atomic_int_add(&currConc, 1);
-		atomic_int_add(&total, 1);
-		while (conc>atomic_int_get(&maxConc) && !atomic_int_compare_and_swap(&maxConc, atomic_int_get(&maxConc), conc));
 		pthread_create(&t, NULL, agent, (void*)(intptr_t)client_sock);
 	}
 	// if we got here, we already close(sock);
