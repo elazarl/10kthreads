@@ -9,7 +9,6 @@ import (
 	"net"
 	"sync"
 	"sync/atomic"
-	"time"
 )
 
 func panicOnErr(msg string, err error) {
@@ -63,7 +62,6 @@ func main() {
 				log.Fatalln("This is not an echo server: "+string(out))
 			}
 		}()
-		time.Sleep(time.Microsecond)
 	}
 	step1.Wait()
 	step2.Done()
