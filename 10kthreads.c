@@ -31,11 +31,6 @@ void *agent(void *_sock) {
 		perror("read");
 		return NULL;
 	}
-	const char *msg = "ECHO: ";
-	if (write(sock, msg, strlen(msg)<0)) {
-		perror("write");
-		return NULL;
-	}
 	if (write(sock, buf, len)<0) {
 		return NULL;
 	}
