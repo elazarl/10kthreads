@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net"
 	"sync"
@@ -19,7 +18,7 @@ func panicOnErr(msg string, err error) {
 
 func main() {
 	nthreads := flag.Int("n", -1, "how many threads will open connection concurrently")
-	data := flag.String("data", "hello", "what will those threads write")
+	msg := flag.String("data", "hello", "what will those threads write")
 	host := flag.String("host", "localhost:1234", "all threads connect to host")
 	flag.Parse()
 	if *nthreads<=0 {
@@ -36,6 +35,7 @@ func main() {
 	var conc int32 = 0
 	var maxConc int32 = 0
 	var total int32 = 0
+	data := []byte(*msg)
 	for i:=0; i<*nthreads; i++ {
 		go func() {
 			conn, err := net.Dial("tcp", *host)
@@ -55,11 +55,16 @@ func main() {
 			defer conn.Close()
 			step1.Done()
 			step2.Wait()
-			fmt.Fprint(conn, *data)
-			out, err := ioutil.ReadAll(conn)
+			if nr, err := conn.Write(data); err!=nil || nr!=len(data) {
+				log.Fatalln("Unable to write", err)
+			}
+			reply := make([]byte, len(data))
+			if nr, err := conn.Read(reply); err!=nil || nr!=len(data) {
+				log.Fatalln("Unable to read", err)
+			}
 			panicOnErr("copy", err)
-			if bytes.Compare(out, []byte(*data))!=0 {
-				log.Fatalln("This is not an echo server: "+string(out))
+			if bytes.Compare(reply, data)!=0 {
+				log.Fatalln("This is not an echo server: "+string(reply))
 			}
 		}()
 	}
